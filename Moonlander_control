@@ -1,0 +1,55 @@
+// set pin numbers for the five buttons:
+char arr = KEY_UP_ARROW;
+char der = KEY_RIGHT_ARROW;
+char aba = KEY_DOWN_ARROW;
+char izq = KEY_LEFT_ARROW;
+
+void setup() { // initialize the buttons' inputs:
+  //pinMode(upButton, INPUT);
+  pinMode (2,INPUT);
+  pinMode(3,INPUT);
+  pinMode(4,INPUT);
+  pinMode(5,INPUT);
+  pinMode(6,INPUT);
+
+  Serial.begin(9600);
+  //initialize keyboard control
+  Keyboard.begin();
+}
+
+void loop() {
+
+  // use the pushbuttons to control the keyboard:
+// if (digitalRead(upButton) == HIGH) {
+// delay(300);
+// Keyboard.releaseAll();
+// }
+if (digitalRead(2) == HIGH){
+  delay (100);
+  Keyboard.press(arr);
+}
+delay (100);
+Keyboard.releaseAll();
+
+if (digitalRead(3) == HIGH){
+  delay (100);
+  Keyboard.press(aba);
+}
+delay (100);
+Keyboard.releaseAll();
+
+if (digitalRead(4) == HIGH){
+  delay(100);
+  Keyboard.press(der);
+}
+delay (100);
+Keyboard.releaseAll();
+
+if (digitalRead(5) == HIGH){
+  delay (100);
+  Keyboard.press(izq);
+}
+  delay (100);
+  Keyboard.releaseAll();
+
+  }
