@@ -1,0 +1,119 @@
+#include <Wire.h>
+#include <FaBoProximity_VCNL4010.h>
+FaBoProximity faboProximity;
+
+//Pines del LED
+const int rojoLED = 9;
+const int azulLED = 10;
+const int verdeLED = 11;
+
+//Pin Pot
+int potPin = A0;
+int potValor;
+
+//Proximity
+int sensorValue;
+int mappedValue;
+int brightness;
+long lastProximity = 0;
+long lastRainbow = 0;
+
+//Mapping Values
+int mappedValueRed;
+int mappedValueGreen;
+int mappedValueBlue;
+int mappedProx;
+
+void setup() {
+  Serial.begin (9600);
+
+//LEDs
+  pinMode (verdeLED, OUTPUT);
+  pinMode (rojoLED, OUTPUT);
+  pinMode (azulLED, OUTPUT);
+
+//Pot
+  pinMode(potPin, INPUT);
+
+//Proximity
+faboProximity.begin();
+
+}
+
+void loop() {
+
+// PROXIMITY
+if(faboProximity.checkProxReady()){
+  sensorValue = faboProximity.readProx();
+  }
+
+mappedValue = map(sensorValue,2000,50000,0,250);
+ Serial.println(sensorValue);
+ brightness = mappedValue;
+
+//RAINBOW
+//if (millis() - lastRainbow >= 20){
+  setColor(0,0,0);//clears the values and puts them back in 0
+unsigned int rgbColor [3] = {0,0,0};//an arrangement that has three slots which start off in 0
+
+potValor = analogRead(potPin); //read pot1
+Serial.print("\t pot: ");
+Serial.println (potValor);
+
+//1/6 RED
+if (potValor < 170){
+rgbColor [1] = mappedValueRed - mappedValue;
+mappedValueRed = map (potValor, 0, 170, 6, 127 );
+  }
+
+//2/6 RED YELLOW GREEN
+if ((potValor > 170) && (potValor < 340)){
+rgbColor [1] = mappedValueRed - mappedValue;
+mappedValueRed = map (potValor, 170, 340, 127, 255 );
+rgbColor [0] = mappedValueGreen - mappedValue;
+mappedValueGreen = map (potValor, 170, 340, 6, 127 );
+  }
+
+//3/6 GREEN AQUA
+if ((potValor > 340) && (potValor < 510)) {
+  rgbColor [1] = mappedValueRed;
+mappedValueRed = map (potValor, 340, 510, 255, 0);
+rgbColor [0] = mappedValueGreen - mappedValue;
+mappedValueGreen = map (potValor, 340, 510, 127, 255 );
+rgbColor [2] = mappedValueBlue - mappedValue;
+mappedValueBlue = map (potValor, 340, 510, 6, 127 );
+}
+
+//4/6 AQUA BLUE
+if ((potValor > 510) && (potValor < 680)){
+rgbColor [0] = mappedValueGreen - mappedValue;
+mappedValueGreen = map (potValor, 510, 682, 255, 0 );
+rgbColor [2] = mappedValueBlue- mappedValue ;
+mappedValueBlue = map (potValor, 510, 682, 6, 127 );
+  }
+
+//5/6 BLUE PINK
+if ((potValor > 680) && (potValor < 840)){
+rgbColor [2] = mappedValueBlue - mappedValue ;
+mappedValueBlue = map (potValor, 680, 840, 127, 255 );
+rgbColor [1] = mappedValueRed- mappedValue;
+mappedValueRed = map (potValor, 680, 840, 6, 127 );
+  }
+
+//6/6 PINK RED
+if ((potValor > 840) && (potValor <= 1023)){
+rgbColor [1] = mappedValueRed - mappedValue;
+mappedValueRed = map (potValor, 840, 1023, 127, 255 );
+rgbColor [2] = mappedValueBlue- mappedValue;
+mappedValueBlue = map (potValor, 840, 1023, 255, 0 );
+  }
+
+setColor (rgbColor [0], rgbColor [1], rgbColor [2]);
+delay (100);
+}
+
+void setColor (unsigned int red, unsigned int green, unsigned int blue){
+  analogWrite (verdeLED, red);
+  analogWrite (rojoLED, green);
+  analogWrite (azulLED, blue);
+}
